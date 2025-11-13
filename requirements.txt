@@ -11,6 +11,10 @@ requests>=2.31.0
 torch>=2.5.1
 torchvision>=0.20.1
 
+# For Docker API
+Flask>=3.0.0
+Werkzeug>=3.0.0
+
 # For notebooks (optional)
 jupyter>=1.0.0
 matplotlib>=3.7.0

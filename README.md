@@ -2,13 +2,31 @@
 
 Modern implementation of crosshatching effects for portrait images using AI-powered segmentation.
 
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/joeljose/Crosshatch/blob/main/crosshatch.ipynb)
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/joeljose/Crosshatch/blob/main/crosshatch_v2.ipynb)
+[![Docker](https://img.shields.io/badge/docker-ready-blue.svg)](docker-app/README.md)
 
 <img src="https://github.com/joeljose/assets/raw/master/crosshatch/nout.jpg" alt="Crosshatch Example" width="800"/>
 
 ## What is Crosshatching?
 
 Crosshatching is a drawing technique used widely in the art world. It involves drawing two layers of hatching at right-angles to create a mesh-like pattern. Multiple layers in varying directions create textures and tonal effects. This project applies crosshatching effects to portrait photos programmatically.
+
+## 🎯 Two Ways to Use Crosshatch
+
+### 1. 📓 **Google Colab Notebook** (Easiest - No Setup!)
+Perfect for experimentation and quick results. Click the badge above to open in Colab.
+- ✅ Zero installation required
+- ✅ Free GPU access
+- ✅ Interactive and visual
+- ✅ Great for learning
+
+### 2. 🐳 **Docker API** (Best for Production)
+Dockerized REST API for integrating into your applications.
+- ✅ Easy deployment
+- ✅ Production-ready
+- ✅ REST API interface
+- ✅ Scalable
+- 📖 See [Docker documentation](docker-app/README.md)
 
 ## What's New in v2.0
 
@@ -32,13 +50,45 @@ This is a complete rewrite with modern best practices:
 - GPU acceleration with CUDA support
 - Efficient batch processing
 
-### 📦 **Easy Installation**
-- Simple pip installation
+### 📦 **Multiple Deployment Options**
+- Google Colab notebook (zero setup)
+- Docker API (production ready)
+- Python package (local development)
 - Command-line interface
-- Well-documented API
-- Example scripts
 
-## Installation
+## Quick Start Options
+
+### Option 1: Google Colab (Zero Setup!)
+
+The easiest way to try Crosshatch:
+
+1. Click the **"Open in Colab"** badge above
+2. Run all cells
+3. Upload your portrait image
+4. Get your crosshatched result!
+
+[**→ Open Colab Notebook**](https://colab.research.google.com/github/joeljose/Crosshatch/blob/main/crosshatch_v2.ipynb)
+
+### Option 2: Docker API (Production)
+
+Perfect for integrating into your applications:
+
+```bash
+# Quick start script
+cd docker-app && ./quickstart.sh
+
+# Or manually with docker-compose
+docker-compose up -d
+
+# Process an image
+curl -X POST -F "file=@portrait.jpg" \
+  http://localhost:5000/api/crosshatch \
+  -o output.jpg
+```
+
+📖 **Full Docker documentation:** [docker-app/README.md](docker-app/README.md)
+
+### Option 3: Local Python Installation
 
 ### Prerequisites
 
