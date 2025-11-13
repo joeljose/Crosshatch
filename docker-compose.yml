@@ -1,0 +1,38 @@
+# Docker Compose for Crosshatch API - GPU Version
+version: '3.8'
+
+services:
+  crosshatch-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: crosshatch:2.0-gpu
+    container_name: crosshatch-api
+    ports:
+      - "5000:5000"
+    environment:
+      - DEVICE=cuda
+      - SAM2_MODEL=small  # Options: tiny, small, base_plus, large
+      - MAX_DIMENSION=1200
+      - PORT=5000
+    volumes:
+      - ./uploads:/tmp/uploads
+      - ./outputs:/tmp/outputs
+    restart: unless-stopped
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    healthcheck:
+      test: ["CMD", "python", "-c", "import requests; requests.get('http://localhost:5000/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+volumes:
+  uploads:
+  outputs:

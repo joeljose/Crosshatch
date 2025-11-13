@@ -1,0 +1,31 @@
+# Docker Compose for Crosshatch API - CPU Version
+version: '3.8'
+
+services:
+  crosshatch-api:
+    build:
+      context: .
+      dockerfile: Dockerfile.cpu
+    image: crosshatch:2.0-cpu
+    container_name: crosshatch-api-cpu
+    ports:
+      - "5000:5000"
+    environment:
+      - DEVICE=cpu
+      - SAM2_MODEL=tiny  # Tiny model recommended for CPU
+      - MAX_DIMENSION=1200
+      - PORT=5000
+    volumes:
+      - ./uploads:/tmp/uploads
+      - ./outputs:/tmp/outputs
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import requests; requests.get('http://localhost:5000/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+volumes:
+  uploads:
+  outputs:
