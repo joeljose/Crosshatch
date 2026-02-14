@@ -46,13 +46,13 @@ export async function process(img, style = 'horizontal', onProgress = () => {}) 
 
   // Step 5: Resize
   onProgress(0.6, 'Resizing image...');
-  const resized = await resizeGrayscale(grayData, origW, origH);
+  const resized = resizeGrayscale(grayData, origW, origH);
   const { data: grayResized, width: newW, height: newH } = resized;
 
   // Resize mask to match
-  const maskResized = await resizeMask(mask, origW, origH, newW, newH);
+  const maskResized = resizeMask(mask, origW, origH, newW, newH);
 
-  // Re-threshold mask after resize (pica may introduce intermediate values)
+  // Re-threshold mask after resize (canvas may introduce intermediate values)
   for (let i = 0; i < maskResized.length; i++) {
     maskResized[i] = maskResized[i] > 128 ? 255 : 0;
   }

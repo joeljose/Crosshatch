@@ -172,7 +172,7 @@ export async function segment(imageData) {
   }
 
   // Resize mask back to original dimensions
-  const maskFull = await resizeMask(mask320, outW, outH, origW, origH);
+  const maskFull = resizeMask(mask320, outW, outH, origW, origH);
 
   // Threshold at 128
   for (let i = 0; i < maskFull.length; i++) {

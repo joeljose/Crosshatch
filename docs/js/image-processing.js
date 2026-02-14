@@ -4,11 +4,6 @@
 
 import { createCanvas, loadImage } from './utils.js';
 
-// Pica for high-quality Lanczos resize
-import pica from 'https://cdn.jsdelivr.net/npm/pica@9.0.1/+esm';
-
-const resizer = pica();
-
 const MAX_DIMENSION = 1200;
 const HATCH_UNIT = 2100;
 
@@ -50,67 +45,88 @@ export async function loadTextures() {
 }
 
 /**
- * Resize a grayscale image so its longest side is MAX_DIMENSION using pica (Lanczos).
+ * High-quality canvas resize using step-down halving.
+ * Halves dimensions repeatedly until close to target, then does a final resize.
+ * This gives bilinear-interpolated quality comparable to Lanczos for downscaling.
+ */
+function canvasResize(srcCanvas, dstW, dstH) {
+  let cur = srcCanvas;
+  let curW = srcCanvas.width;
+  let curH = srcCanvas.height;
+
+  // Step down by halving until within 2x of target
+  while (curW / 2 >= dstW && curH / 2 >= dstH) {
+    const halfW = Math.floor(curW / 2);
+    const halfH = Math.floor(curH / 2);
+    const step = createCanvas(halfW, halfH);
+    const ctx = step.getContext('2d');
+    ctx.drawImage(cur, 0, 0, halfW, halfH);
+    cur = step;
+    curW = halfW;
+    curH = halfH;
+  }
+
+  // Final resize to exact target
+  const dst = createCanvas(dstW, dstH);
+  const ctx = dst.getContext('2d');
+  ctx.drawImage(cur, 0, 0, dstW, dstH);
+  return dst;
+}
+
+/**
+ * Put grayscale Uint8Array data onto a canvas as RGBA.
+ */
+function grayToCanvas(data, width, height) {
+  const c = createCanvas(width, height);
+  const ctx = c.getContext('2d');
+  const imgData = ctx.createImageData(width, height);
+  for (let i = 0; i < data.length; i++) {
+    const j = i * 4;
+    imgData.data[j] = data[i];
+    imgData.data[j + 1] = data[i];
+    imgData.data[j + 2] = data[i];
+    imgData.data[j + 3] = 255;
+  }
+  ctx.putImageData(imgData, 0, 0);
+  return c;
+}
+
+/**
+ * Extract grayscale Uint8Array from a canvas (reads R channel).
+ */
+function canvasToGray(canvas) {
+  const ctx = canvas.getContext('2d');
+  const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+  const gray = new Uint8Array(canvas.width * canvas.height);
+  for (let i = 0; i < gray.length; i++) {
+    gray[i] = imgData.data[i * 4];
+  }
+  return gray;
+}
+
+/**
+ * Resize a grayscale image so its longest side is MAX_DIMENSION.
  * Returns { data, width, height }.
  */
-export async function resizeGrayscale(data, width, height) {
+export function resizeGrayscale(data, width, height) {
   const ratio = MAX_DIMENSION / Math.max(width, height);
   if (ratio >= 1) return { data, width, height };
 
   const newWidth = Math.trunc(ratio * width);
   const newHeight = Math.trunc(ratio * height);
 
-  // Pica operates on canvas elements with RGBA data
-  const srcCanvas = createCanvas(width, height);
-  const srcCtx = srcCanvas.getContext('2d');
-  const srcImageData = srcCtx.createImageData(width, height);
-  for (let i = 0; i < data.length; i++) {
-    const j = i * 4;
-    srcImageData.data[j] = data[i];
-    srcImageData.data[j + 1] = data[i];
-    srcImageData.data[j + 2] = data[i];
-    srcImageData.data[j + 3] = 255;
-  }
-  srcCtx.putImageData(srcImageData, 0, 0);
-
-  const dstCanvas = createCanvas(newWidth, newHeight);
-  await resizer.resize(srcCanvas, dstCanvas, { filter: 'lanczos3' });
-
-  const dstCtx = dstCanvas.getContext('2d');
-  const dstImageData = dstCtx.getImageData(0, 0, newWidth, newHeight);
-  const gray = new Uint8Array(newWidth * newHeight);
-  for (let i = 0; i < gray.length; i++) {
-    gray[i] = dstImageData.data[i * 4]; // R channel (all equal for gray)
-  }
-  return { data: gray, width: newWidth, height: newHeight };
+  const srcCanvas = grayToCanvas(data, width, height);
+  const dstCanvas = canvasResize(srcCanvas, newWidth, newHeight);
+  return { data: canvasToGray(dstCanvas), width: newWidth, height: newHeight };
 }
 
 /**
- * Resize a mask (Uint8Array) to new dimensions using pica.
+ * Resize a mask (Uint8Array) to new dimensions.
  */
-export async function resizeMask(data, srcW, srcH, dstW, dstH) {
-  const srcCanvas = createCanvas(srcW, srcH);
-  const srcCtx = srcCanvas.getContext('2d');
-  const srcImageData = srcCtx.createImageData(srcW, srcH);
-  for (let i = 0; i < data.length; i++) {
-    const j = i * 4;
-    srcImageData.data[j] = data[i];
-    srcImageData.data[j + 1] = data[i];
-    srcImageData.data[j + 2] = data[i];
-    srcImageData.data[j + 3] = 255;
-  }
-  srcCtx.putImageData(srcImageData, 0, 0);
-
-  const dstCanvas = createCanvas(dstW, dstH);
-  await resizer.resize(srcCanvas, dstCanvas, { filter: 'lanczos3' });
-
-  const dstCtx = dstCanvas.getContext('2d');
-  const dstImageData = dstCtx.getImageData(0, 0, dstW, dstH);
-  const result = new Uint8Array(dstW * dstH);
-  for (let i = 0; i < result.length; i++) {
-    result[i] = dstImageData.data[i * 4];
-  }
-  return result;
+export function resizeMask(data, srcW, srcH, dstW, dstH) {
+  const srcCanvas = grayToCanvas(data, srcW, srcH);
+  const dstCanvas = canvasResize(srcCanvas, dstW, dstH);
+  return canvasToGray(dstCanvas);
 }
 
 /**
