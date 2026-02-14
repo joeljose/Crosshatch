@@ -27,7 +27,7 @@ Crosshatching is a drawing technique where layers of parallel lines are overlaid
 
 1. Click the **"Open in Colab"** badge above
 2. Run all cells
-3. Upload your portrait
+3. Upload your portrait to the Crosshatch folder via the sidebar
 4. Download the result
 
 ## Hatch Styles
