@@ -122,10 +122,19 @@ export function resizeGrayscale(data, width, height) {
 
 /**
  * Resize a mask (Uint8Array) to new dimensions.
+ * Uses createImageBitmap with high quality (Lanczos) to match PIL.
  */
-export function resizeMask(data, srcW, srcH, dstW, dstH) {
+export async function resizeMask(data, srcW, srcH, dstW, dstH) {
   const srcCanvas = grayToCanvas(data, srcW, srcH);
-  const dstCanvas = canvasResize(srcCanvas, dstW, dstH);
+  const bitmap = await createImageBitmap(srcCanvas, {
+    resizeWidth: dstW,
+    resizeHeight: dstH,
+    resizeQuality: 'high',
+  });
+  const dstCanvas = createCanvas(dstW, dstH);
+  const ctx = dstCanvas.getContext('2d');
+  ctx.drawImage(bitmap, 0, 0);
+  bitmap.close();
   return canvasToGray(dstCanvas);
 }
 

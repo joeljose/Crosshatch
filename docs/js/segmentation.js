@@ -109,14 +109,21 @@ export async function segment(imageData) {
 
   const { width: origW, height: origH, data: rgba } = imageData;
 
-  // Resize to 320x320 using canvas (bilinear is fine for the model input)
+  // Resize to 320x320 using createImageBitmap with high quality (Lanczos in Chrome/Edge)
+  // to match PIL's Image.Resampling.LANCZOS used by rembg
   const srcCanvas = createCanvas(origW, origH);
   const srcCtx = srcCanvas.getContext('2d');
   srcCtx.putImageData(imageData, 0, 0);
 
+  const bitmap = await createImageBitmap(srcCanvas, {
+    resizeWidth: INPUT_SIZE,
+    resizeHeight: INPUT_SIZE,
+    resizeQuality: 'high',
+  });
   const inputCanvas = createCanvas(INPUT_SIZE, INPUT_SIZE);
   const inputCtx = inputCanvas.getContext('2d');
-  inputCtx.drawImage(srcCanvas, 0, 0, INPUT_SIZE, INPUT_SIZE);
+  inputCtx.drawImage(bitmap, 0, 0);
+  bitmap.close();
   const inputPixels = inputCtx.getImageData(0, 0, INPUT_SIZE, INPUT_SIZE).data;
 
   // Preprocess: normalize by max pixel value, then ImageNet mean/std
@@ -168,11 +175,11 @@ export async function segment(imageData) {
 
   const mask320 = new Uint8Array(outSize);
   for (let i = 0; i < outSize; i++) {
-    mask320[i] = Math.round(((outputData[i] - minVal) / range) * 255);
+    mask320[i] = Math.trunc(((outputData[i] - minVal) / range) * 255);
   }
 
   // Resize mask back to original dimensions
-  const maskFull = resizeMask(mask320, outW, outH, origW, origH);
+  const maskFull = await resizeMask(mask320, outW, outH, origW, origH);
 
   // Threshold at 128
   for (let i = 0; i < maskFull.length; i++) {

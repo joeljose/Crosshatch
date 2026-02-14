@@ -50,7 +50,7 @@ export async function process(img, style = 'horizontal', onProgress = () => {}) 
   const { data: grayResized, width: newW, height: newH } = resized;
 
   // Resize mask to match
-  const maskResized = resizeMask(mask, origW, origH, newW, newH);
+  const maskResized = await resizeMask(mask, origW, origH, newW, newH);
 
   // Re-threshold mask after resize (canvas may introduce intermediate values)
   for (let i = 0; i < maskResized.length; i++) {
