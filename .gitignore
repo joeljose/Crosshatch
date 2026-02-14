@@ -5,9 +5,6 @@
 __pycache__/
 *.py[cod]
 
-# SAM2 (cloned at runtime)
-sam2_repo/
-
 # Generated outputs (don't track user-generated files)
 output_*.jpg
 my_crosshatch.jpg

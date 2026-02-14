@@ -13,7 +13,7 @@ Crosshatching is a drawing technique where layers of parallel lines are overlaid
 
 ## How It Works
 
-1. **Segment** the subject from the background using SAM2
+1. **Segment** the subject from the background using rembg
 2. **Resize** the image to match the hatch texture dimensions
 3. **Layer** the subject onto a white background
 4. **Analyze** the tonal range via histogram and compute threshold boundaries
