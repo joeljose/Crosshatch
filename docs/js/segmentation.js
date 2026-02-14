@@ -5,8 +5,8 @@
 import { createCanvas } from './utils.js';
 import { resizeMask } from './image-processing.js';
 
-const MODEL_URL =
-  'https://github.com/danielgatis/rembg/releases/download/v0.0.0/u2net_human_seg.onnx';
+const MODEL_CHUNKS = ['model/chunk_aa', 'model/chunk_ab', 'model/chunk_ac'];
+const CACHE_KEY = 'crosshatch-model-v1';
 const CACHE_NAME = 'crosshatch-models-v1';
 const INPUT_SIZE = 320;
 
@@ -17,45 +17,65 @@ const STD = [0.229, 0.224, 0.225];
 let session = null;
 
 /**
- * Fetch the model with caching and progress reporting.
- * Returns an ArrayBuffer of the model.
+ * Fetch the model chunks with caching and progress reporting.
+ * Returns an ArrayBuffer of the reassembled model.
  */
 async function fetchModelWithProgress(onProgress) {
   const cache = await caches.open(CACHE_NAME);
-  const cached = await cache.match(MODEL_URL);
+  const cached = await cache.match(CACHE_KEY);
 
   if (cached) {
     onProgress(1);
     return await cached.arrayBuffer();
   }
 
-  const response = await fetch(MODEL_URL);
-  if (!response.ok) throw new Error(`Model download failed: ${response.status}`);
+  // Fetch all chunks, tracking combined progress
+  const chunkSizes = [];
+  const chunkBuffers = [];
+  let totalSize = 0;
+  let downloaded = 0;
 
-  const contentLength = parseInt(response.headers.get('content-length') || '0', 10);
-  const reader = response.body.getReader();
-  const chunks = [];
-  let received = 0;
+  for (let i = 0; i < MODEL_CHUNKS.length; i++) {
+    const response = await fetch(MODEL_CHUNKS[i]);
+    if (!response.ok) throw new Error(`Model chunk download failed: ${response.status}`);
 
-  while (true) {
-    const { done, value } = await reader.read();
-    if (done) break;
-    chunks.push(value);
-    received += value.length;
-    if (contentLength > 0) {
-      onProgress(received / contentLength);
+    const contentLength = parseInt(response.headers.get('content-length') || '0', 10);
+    const reader = response.body.getReader();
+    const parts = [];
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      parts.push(value);
+      downloaded += value.length;
+      // Estimate total as ~168MB if content-length not available
+      const estimatedTotal = 176000000;
+      onProgress(Math.min(downloaded / estimatedTotal, 0.99));
     }
+
+    const blob = new Blob(parts);
+    chunkBuffers.push(await blob.arrayBuffer());
   }
 
-  const blob = new Blob(chunks);
+  // Reassemble into a single ArrayBuffer
+  totalSize = chunkBuffers.reduce((sum, buf) => sum + buf.byteLength, 0);
+  const combined = new Uint8Array(totalSize);
+  let offset = 0;
+  for (const buf of chunkBuffers) {
+    combined.set(new Uint8Array(buf), offset);
+    offset += buf.byteLength;
+  }
 
-  // Cache for next time
-  const cacheResponse = new Response(blob, {
+  const modelBuffer = combined.buffer;
+
+  // Cache the reassembled model for next time
+  const cacheResponse = new Response(new Blob([modelBuffer]), {
     headers: { 'Content-Type': 'application/octet-stream' },
   });
-  await cache.put(MODEL_URL, cacheResponse);
+  await cache.put(CACHE_KEY, cacheResponse);
 
-  return await blob.arrayBuffer();
+  onProgress(1);
+  return modelBuffer;
 }
 
 /**
