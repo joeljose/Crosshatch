@@ -3,7 +3,10 @@
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/joeljose/Crosshatch/blob/main/crosshatch.ipynb)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-<img src="assets/output/crosshatch_example.jpg" alt="Crosshatch Example" width="800"/>
+<p>
+<img src="assets/readme/afghan_girl.png" alt="Original" width="390"/>
+<img src="assets/readme/output.jpg" alt="Crosshatch Output" width="390"/>
+</p>
 
 Turn portrait photos into crosshatch drawings using automatic segmentation and hatch pattern blending.
 
