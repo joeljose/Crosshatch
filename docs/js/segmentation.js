@@ -85,7 +85,7 @@ async function fetchModelWithProgress(onProgress) {
 export async function loadModel(onProgress = () => {}) {
   if (session) return session;
 
-  const ort = await import('https://cdn.jsdelivr.net/npm/onnxruntime-web@1.21.0/+esm');
+  const ort = globalThis.ort;
 
   // Disable multi-threading (needs COOP/COEP headers not available on GitHub Pages)
   ort.env.wasm.numThreads = 1;
@@ -105,7 +105,7 @@ export async function loadModel(onProgress = () => {}) {
 export async function segment(imageData) {
   if (!session) throw new Error('Model not loaded');
 
-  const ort = await import('https://cdn.jsdelivr.net/npm/onnxruntime-web@1.21.0/+esm');
+  const ort = globalThis.ort;
 
   const { width: origW, height: origH, data: rgba } = imageData;
 
