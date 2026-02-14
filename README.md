@@ -1,5 +1,6 @@
 # Crosshatch
 
+[![Try It Online](https://img.shields.io/badge/Try%20It-Online-blue)](https://joeljose.github.io/Crosshatch/)
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/joeljose/Crosshatch/blob/main/crosshatch.ipynb)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
@@ -24,6 +25,17 @@ Crosshatching is a drawing technique where layers of parallel lines are overlaid
 6. **Blend** the hatch layers into the final crosshatch drawing
 
 ## How to Use
+
+### Web App (recommended)
+
+1. Go to **[joeljose.github.io/Crosshatch](https://joeljose.github.io/Crosshatch/)**
+2. Drop a portrait photo or click to browse
+3. Choose a hatch style and click **Process**
+4. Download the result as JPG or PNG
+
+Everything runs in your browser — no images are uploaded to any server.
+
+### Colab Notebook
 
 1. Click the **"Open in Colab"** badge above
 2. Run all cells

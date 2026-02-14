@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Crosshatch — Turn portraits into crosshatch drawings</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header>
+    <h1>Crosshatch</h1>
+    <p class="tagline">Turn portrait photos into crosshatch drawings — entirely in your browser</p>
+  </header>
+
+  <main>
+    <div id="drop-zone" tabindex="0" role="button" aria-label="Upload an image">
+      <div class="drop-zone-content">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+          <polyline points="17 8 12 3 7 8"/>
+          <line x1="12" y1="3" x2="12" y2="15"/>
+        </svg>
+        <p>Drop a portrait here or <strong>click to browse</strong></p>
+        <p class="hint">JPG, PNG, or WebP</p>
+      </div>
+      <input type="file" id="file-input" accept="image/jpeg,image/png,image/webp" hidden>
+    </div>
+
+    <div id="controls" class="hidden">
+      <div class="control-row">
+        <label for="style-select">Style:</label>
+        <select id="style-select">
+          <option value="horizontal">Horizontal</option>
+          <option value="vortex">Vortex</option>
+        </select>
+        <button id="process-btn" type="button">Process</button>
+      </div>
+    </div>
+
+    <div id="progress-section" class="hidden">
+      <div class="progress-bar-track">
+        <div id="progress-bar" class="progress-bar-fill" style="width: 0%"></div>
+      </div>
+      <p id="progress-text">Preparing...</p>
+    </div>
+
+    <div id="results" class="hidden">
+      <div class="comparison">
+        <div class="comparison-panel">
+          <h3>Original</h3>
+          <canvas id="original-canvas"></canvas>
+        </div>
+        <div class="comparison-panel">
+          <h3>Crosshatch</h3>
+          <canvas id="result-canvas"></canvas>
+        </div>
+      </div>
+      <div class="actions">
+        <button id="download-jpg" type="button">Download JPG</button>
+        <button id="download-png" type="button">Download PNG</button>
+        <button id="try-another" type="button">Try Another</button>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <p>
+      <a href="https://github.com/joeljose/Crosshatch" target="_blank" rel="noopener">GitHub</a>
+      &middot; Runs entirely in your browser &mdash; no images are uploaded to any server
+    </p>
+  </footer>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
