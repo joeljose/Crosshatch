@@ -1,0 +1,23 @@
+# Jupyter
+.ipynb_checkpoints/
+
+# Python
+__pycache__/
+*.py[cod]
+
+# SAM2 (cloned at runtime)
+sam2/
+
+# Generated outputs (don't track user-generated files)
+output_*.jpg
+my_crosshatch.jpg
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editors
+.vscode/
+.idea/
+*.swp
+*~
