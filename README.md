@@ -51,7 +51,7 @@ Everything runs in your browser — no images are uploaded to any server.
 
 ## Follow Me
 
-<a href="https://twitter.com/joelk1jose" target="_blank"><img src="assets/icons/tw.png" width="30"></a>
+<a href="https://x.com/joelk1jose" target="_blank"><img src="assets/icons/x.png" width="30"></a>
 <a href="https://github.com/joeljose" target="_blank"><img src="assets/icons/gthb.png" width="30"></a>
 <a href="https://www.linkedin.com/in/joel-jose-527b80102/" target="_blank"><img src="assets/icons/lnkdn.png" width="30"></a>
 
