@@ -155,26 +155,44 @@ export function layerOnWhite(gray, mask) {
  * Uses 2nd/98th percentile for robustness.
  */
 export function calculateThresholds(data) {
-  // Collect non-white pixels
-  const pixels = [];
+  // Build histogram of non-white pixels (counting sort)
+  const counts = new Uint32Array(256);
+  let total = 0;
   for (let i = 0; i < data.length; i++) {
-    if (data[i] < 255) pixels.push(data[i]);
+    if (data[i] < 255) {
+      counts[data[i]]++;
+      total++;
+    }
   }
 
-  if (pixels.length === 0) return [64, 128, 192];
+  if (total === 0) return [64, 128, 192];
 
-  pixels.sort((a, b) => a - b);
-
-  const percentile = (sorted, p) => {
-    const idx = (p / 100) * (sorted.length - 1);
-    const lo = Math.floor(idx);
-    const hi = Math.ceil(idx);
-    if (lo === hi) return sorted[lo];
-    return sorted[lo] + (sorted[hi] - sorted[lo]) * (idx - lo);
+  // Find percentile values by walking the histogram
+  const percentile = (p) => {
+    const target = (p / 100) * (total - 1);
+    const loIdx = Math.floor(target);
+    const frac = target - loIdx;
+    let cumulative = 0;
+    let loVal = 0;
+    let hiVal = 0;
+    let found = false;
+    for (let v = 0; v < 256; v++) {
+      cumulative += counts[v];
+      if (!found && cumulative > loIdx) {
+        loVal = v;
+        found = true;
+      }
+      if (cumulative > loIdx + 1) {
+        hiVal = v;
+        break;
+      }
+      hiVal = v;
+    }
+    return loVal + (hiVal - loVal) * frac;
   };
 
-  const lo = percentile(pixels, 2);
-  const hi = percentile(pixels, 98);
+  const lo = percentile(2);
+  const hi = percentile(98);
   const step = (hi - lo) / 4;
   return [
     Math.trunc(lo + step),

@@ -30,16 +30,13 @@ async function fetchModelWithProgress(onProgress) {
   }
 
   // Fetch all chunks, tracking combined progress
-  const chunkSizes = [];
   const chunkBuffers = [];
-  let totalSize = 0;
   let downloaded = 0;
 
   for (let i = 0; i < MODEL_CHUNKS.length; i++) {
     const response = await fetch(MODEL_CHUNKS[i]);
     if (!response.ok) throw new Error(`Model chunk download failed: ${response.status}`);
 
-    const contentLength = parseInt(response.headers.get('content-length') || '0', 10);
     const reader = response.body.getReader();
     const parts = [];
 
@@ -58,7 +55,7 @@ async function fetchModelWithProgress(onProgress) {
   }
 
   // Reassemble into a single ArrayBuffer
-  totalSize = chunkBuffers.reduce((sum, buf) => sum + buf.byteLength, 0);
+  const totalSize = chunkBuffers.reduce((sum, buf) => sum + buf.byteLength, 0);
   const combined = new Uint8Array(totalSize);
   let offset = 0;
   for (const buf of chunkBuffers) {
